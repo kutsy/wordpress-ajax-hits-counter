@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
  * Plugin URI: http://romantelychko.com/downloads/wordpress/plugins/ajax-hits-counter.latest.zip
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.8.8
+ * Version: 0.9.2
  * Author: Roman Telychko
  * Author URI: http://romantelychko.com
 */
@@ -15,6 +16,12 @@
  */
 class AJAX_Hits_Counter
 {
+    ///////////////////////////////////////////////////////////////////////////
+
+    protected $settings = array(
+        'use_rapid_incrementer'         => 0,
+    );
+
     ///////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -40,9 +47,12 @@ class AJAX_Hits_Counter
             // remove cached data on every post save & update hits count
             add_action( 'save_post',                                    array( $this, 'adminSave' ) );
             
+            // add in admin menu
+            add_filter( 'admin_menu',                                   array( $this, 'adminMenu' ) );
+            
             // init admin            
             add_action('admin_init',                                    array( $this, 'adminInit' ) );
-            
+                        
             // register importer
             require_once(ABSPATH.'wp-admin/includes/import.php');
             
@@ -66,6 +76,9 @@ class AJAX_Hits_Counter
         add_action( 'wp_ajax_nopriv_ajax-hits-counter-increment',       array( $this, 'incrementHits' ) );
         add_action( 'wp_ajax_ajax-hits-counter-increment',              array( $this, 'incrementHits' ) );
         
+        // shortcode
+        add_shortcode( 'hits',                                          array( $this, 'getHitsShortcode' ) );
+        
         return true;
     }
     
@@ -84,6 +97,20 @@ class AJAX_Hits_Counter
     ///////////////////////////////////////////////////////////////////////////
 
 	/**
+	 * AJAX_Hits_Counter::getIncrementerTypeOption()
+	 *
+	 * @return      integer
+	 */
+    public function getIncrementerTypeOption()
+    {
+        $temp_use_rapid_incrementer = intval( preg_replace( '#[^01]#', '', get_option( 'ajaxhc_use_rapid_incrementer', $this->settings['use_rapid_incrementer']) ) );
+        
+        return in_array( $temp_use_rapid_incrementer, array( 0, 1 ) ) ? $temp_use_rapid_incrementer : 0;
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
+
+	/**
 	 * AJAX_Hits_Counter::appendScript()
 	 *
 	 * @param       string      $content
@@ -95,16 +122,21 @@ class AJAX_Hits_Counter
     
         if( is_single() || is_page() ) 
         {
+            if( $this->getIncrementerTypeOption()==1 )          // use rapid incrementer
+            {
+                $incrementer_url = plugin_dir_url( __FILE__ ).'increment-hits.rapid.php?post_id='.$post->ID.'&t=';
+            }
+            else                                                // use simple incrementer
+            {
+                $incrementer_url = admin_url( 'admin-ajax.php' ).'?action=ajax-hits-counter-increment&post_id='.$post->ID.'&t=';
+            }
+        
             $content .=
                 '<script type="text/javascript">'.
                     'function ahc_getXmlHttp(){var e;try{e=new ActiveXObject("Msxml2.XMLHTTP")}catch(t){try{e=new ActiveXObject("Microsoft.XMLHTTP")}catch(n){e=false}}if(!e&&typeof XMLHttpRequest!="undefined"){e=new XMLHttpRequest}return e};'.
                     'var ahc_xmlhttp=ahc_getXmlHttp();'.
                     'ahc_xmlhttp.open('.
-                        '"GET",'.
-                        '"'.admin_url( 'admin-ajax.php' ).
-                        '?action=ajax-hits-counter-increment'.
-                        '&post_id='.$post->ID.
-                        '&t="+(parseInt(new Date().getTime()))+"&r="+(parseInt(Math.random()*100000))'.
+                        '"GET", "'.$incrementer_url.'"+(parseInt(new Date().getTime()))+"&r="+(parseInt(Math.random()*100000))'.
                         ');'.
                     'ahc_xmlhttp.send(null);'.
                 '</script>';
@@ -176,6 +208,21 @@ class AJAX_Hits_Counter
     }
     
     ///////////////////////////////////////////////////////////////////////////
+
+	/**
+	 * AJAX_Hits_Counter::getHitsShortcode()
+	 *
+	 * @param       array           $atts
+	 * @return      integer
+	 */
+    public function getHitsShortcode( $atts )
+    {
+        $post_id = isset($atts['id']) && !empty($atts['id']) ? $atts['id'] : get_the_ID();
+    
+        return $this->getHits( $post_id );
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
     
 	/**
 	 * AJAX_Hits_Counter::adminInit()
@@ -191,6 +238,77 @@ class AJAX_Hits_Counter
             // add meta box
             add_action( 'add_meta_boxes',                               array( $this, 'adminAddMetaBox' ) );            
         }
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    
+	/**
+	 * AJAX_Hits_Counter::adminMenu()
+	 *
+	 * @return      bool
+	 */
+    public function adminMenu()
+    {
+	    // create new top-level menu
+	    add_menu_page( 'AJAX Hits Counter', 'AJAX Hits Counter', 'administrator', __FILE__, array( $this, 'adminSettingsPage' ) );
+
+	    // call register settings function
+	    add_action( 'admin_init', array( $this, 'adminSettingsRegister' ) );
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    
+	/**
+	 * AJAX_Hits_Counter::adminSettingsPage()
+	 *
+	 * @return      bool
+	 */
+    public function adminSettingsPage()
+    {
+        ///////////////////////////////////////////////////////////////////////
+    
+        $this->settings['use_rapid_incrementer'] = $this->getIncrementerTypeOption();
+        
+        ///////////////////////////////////////////////////////////////////////
+    
+        echo(
+            '<div class="wrap">'.
+                '<h2>AJAX Hits Counter: Settings</h2>'.
+                    '<form method="post" action="options.php">'
+            );
+            
+        settings_fields( 'ajaxhc' );
+        
+        echo(
+            '<table class="form-table">'.
+                '<tr valign="top">'.
+                    '<td colspan="2">'.
+                        '<input type="checkbox" '.( $this->settings['use_rapid_incrementer']==1 ? ' checked="checked"' : '' ).' name="ajaxhc_use_rapid_incrementer" id="ajaxhc_use_rapid_incrementer" value="1" />'.
+                        '<label for="ajaxhc_use_rapid_incrementer">&nbsp;Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher)</label>'.
+                    '</td>'.
+                '</tr>'.
+            '</table>'
+            );
+            
+        submit_button();
+
+        echo(
+                '</form>'.
+            '</div>'
+            );
+    }
+    
+    ///////////////////////////////////////////////////////////////////////////
+    
+	/**
+	 * AJAX_Hits_Counter::adminSettingsPage()
+	 *
+	 * @return      bool
+	 */
+    public function adminSettingsRegister()
+    {
+        // register settings
+        register_setting( 'ajaxhc', 'ajaxhc_use_rapid_incrementer' );
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -1224,6 +1342,9 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                 display:block;
                 clear:both;
             }
+                .'.$this->defaults['widget_id'].'_div textarea {
+                    font-family: "Courier New", Courier, monospace, "Lucida Console", Monaco;
+                }
                 .'.$this->defaults['widget_id'].'_div .'.$this->defaults['widget_id'].'_div_left,
                 .'.$this->defaults['widget_id'].'_div .'.$this->defaults['widget_id'].'_div_right {
                     width:390px;
@@ -1246,6 +1367,10 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                     clear: both;
                     visibility: hidden;
                 }
+                    .'.$this->defaults['widget_id'].'_div .'.$this->defaults['widget_id'].'_div_right ul li {
+                        margin:0;
+                        padding:0 0 2px 0;
+                    }
             </style>'.
 		    '<div class="'.$this->defaults['widget_id'].'_div">'.
                 '<div class="'.$this->defaults['widget_id'].'_div_left">'.
@@ -1254,7 +1379,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         '<input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" />'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('sorting_algorithm').'">Sorting algorithm:</label>'.
+                        '<label for="'.$this->get_field_id('sorting_algorithm').'">Sorting algorithm (order by):</label>'.
                         '<select class="widefat" id="'.$this->get_field_id('sorting_algorithm').'" name="'.$this->get_field_name('sorting_algorithm').'" onChange="return '.$this->defaults['widget_id'].'_sortingAlgorithmOnChange(this.value, \''.$this->get_field_id('sorting_coefficient_div').'\');">'.
                             '<option value="1"'.( $sorting_algorithm<2 || $sorting_algorithm>3 ? ' selected="selected"' : '' ).'>Hits count</option>'.
                             '<option value="2"'.( $sorting_algorithm==2 ? ' selected="selected"' : '' ).'>Comments count</option>'.
@@ -1275,37 +1400,25 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                     '</p>'.
                     '<p>'.
                         '<label for="'.$this->get_field_id('post_type').'">Posts types:</label>'.
-                        '<select class="widefat" id="'.$this->get_field_id('post_type').'" name="'.$this->get_field_name('post_type').'">'.
+                        '<select class="widefat" id="'.$this->get_field_id('post_type').'" name="'.$this->get_field_name('post_type').'" onChange="return '.$this->defaults['widget_id'].'_postTypeOnChange(this.value, \''.$this->get_field_id('post_category_include').'_p\', \''.$this->get_field_id('post_category_exclude').'_p\');">'.
                             '<option value="0"'.( $post_type==0 ? ' selected="selected"' : '' ).'>Posts & Pages</option>'.
                             '<option value="1"'.( $post_type==1 ? ' selected="selected"' : '' ).'>Posts only</option>'.
                             '<option value="2"'.( $post_type==2 ? ' selected="selected"' : '' ).'>Pages only</option>'.
                             //  TODO: add custom types
                         '</select>'.
                     '</p>'.
-                    '<p>'.
-                        '<label for="'.$this->get_field_id('date_range').'">Posts date range:</label>'.
-                        '<select class="widefat" id="'.$this->get_field_id('date_range').'" name="'.$this->get_field_name('date_range').'">'.
-                            '<option value="1"'.( $date_range<=1 ? ' selected="selected"' : '' ).'>Day</option>'.
-                            '<option value="2"'.( $date_range==2 ? ' selected="selected"' : '' ).'>Week</option>'.
-                            '<option value="3"'.( $date_range==3 ? ' selected="selected"' : '' ).'>Month</option>'.
-                            '<option value="4"'.( $date_range==4 ? ' selected="selected"' : '' ).'>3 Months</option>'.
-                            '<option value="5"'.( $date_range==5 ? ' selected="selected"' : '' ).'>6 Months</option>'.
-                            '<option value="6"'.( $date_range==6 ? ' selected="selected"' : '' ).'>Year</option>'.
-                            '<option value="7"'.( $date_range>=7 ? ' selected="selected"' : '' ).'>All time</option>'.
-                        '</select>'.
-                    '</p>'.
-                    '<p>'.
-                        '<label for="'.$this->get_field_id('post_category').'">Include category (only for "posts" type):</label>'.
+                    '<p '.( $post_type==1 ? 'style="display:block;"' : 'style="display:none;"' ).' id="'.$this->get_field_id('post_category_include').'_p">'.
+                        '<label for="'.$this->get_field_id('post_category_include').'">Include category:</label>'.
                         $this->_dropdownCategories(
                             array(
-                                'id'                => $this->get_field_id('post_category'),
+                                'id'                => $this->get_field_id('post_category_include'),
                                 'name'              => $this->get_field_name('post_category'),
                                 'selected'          => $post_category,
                                 )
                             ).
                     '</p>'.
-                    '<p>'.
-                        '<label for="'.$this->get_field_id('post_category_exclude').'">Exclude posts from this category (only for "posts" type):</label>'.
+                    '<p '.( $post_type==1 ? 'style="display:block;"' : 'style="display:none;"' ).' id="'.$this->get_field_id('post_category_exclude').'_p">'.
+                        '<label for="'.$this->get_field_id('post_category_exclude').'">Exclude posts from this category:</label>'.
                         $this->_dropdownCategories(
                             array(
                                 'id'                => $this->get_field_id('post_category_exclude'),
@@ -1318,21 +1431,25 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         ).
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('post_categories_separator').'">Categories separator (if more than one):</label>'.
-                        '<input class="widefat" id="'.$this->get_field_id('post_categories_separator').'" name="'.$this->get_field_name('post_categories_separator').'" type="text" value="'.esc_attr($post_categories_separator).'" />'.
-                    '</p>'.
-                    '<p>'.
-                        '<label for="'.$this->get_field_id('post_date_format').'">Date format (for more info see <a href="http://php.net/manual/en/function.date.php" target="_BLANK">date() manual</a>):</label>'.
-                        '<input class="widefat" id="'.$this->get_field_id('post_date_format').'" name="'.$this->get_field_name('post_date_format').'" type="text" value="'.esc_attr($post_date_format).'" />'.
+                        '<label for="'.$this->get_field_id('date_range').'">Posts publish date range:</label>'.
+                        '<select class="widefat" id="'.$this->get_field_id('date_range').'" name="'.$this->get_field_name('date_range').'">'.
+                            '<option value="1"'.( $date_range<=1 ? ' selected="selected"' : '' ).'>Day</option>'.
+                            '<option value="2"'.( $date_range==2 ? ' selected="selected"' : '' ).'>Week</option>'.
+                            '<option value="3"'.( $date_range==3 ? ' selected="selected"' : '' ).'>Month</option>'.
+                            '<option value="4"'.( $date_range==4 ? ' selected="selected"' : '' ).'>3 Months</option>'.
+                            '<option value="5"'.( $date_range==5 ? ' selected="selected"' : '' ).'>6 Months</option>'.
+                            '<option value="6"'.( $date_range==6 ? ' selected="selected"' : '' ).'>Year</option>'.
+                            '<option value="7"'.( $date_range>=7 ? ' selected="selected"' : '' ).'>All time</option>'.
+                        '</select>'.
                     '</p>'.
                     '<p>'.
                         '<label for="'.$this->get_field_id('custom_css').'">Custom CSS (remove if unneeded):</label>'.
-                        '<textarea class="widefat" cols="20" rows="5" id="'.$this->get_field_id('custom_css').'" name="'.$this->get_field_name('custom_css').'">'.$custom_css.'</textarea>'.
+                        '<textarea class="widefat" cols="20" rows="6" id="'.$this->get_field_id('custom_css').'" name="'.$this->get_field_name('custom_css').'">'.$custom_css.'</textarea>'.
                     '</p>'.
                 '</div>'.
                 '<div class="'.$this->defaults['widget_id'].'_div_right">'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('one_element_html').'">HTML of one element/item (inside &lt;LI&gt;):</label>'.
+                        '<label for="'.$this->get_field_id('one_element_html').'">HTML of one element/item (inside <code>&lt;LI&gt;</code>):</label>'.
                         '<textarea class="widefat" cols="20" rows="8" id="'.$this->get_field_id('one_element_html').'" name="'.$this->get_field_name('one_element_html').'">'.$one_element_html.'</textarea>'.
                         'You can use this placeholders:'.
                         '<ul>'.
@@ -1350,22 +1467,46 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                             '<li><code>{post_comments_count}</code> - Post comments count</li>'.
                         '</ul>'.
                     '</p>'.
+                    '<p>'.
+                        '<label for="'.$this->get_field_id('post_date_format').'">Date format (for more info see <a href="http://php.net/manual/en/function.date.php" target="_BLANK">date() manual</a>):</label>'.
+                        '<input class="widefat" id="'.$this->get_field_id('post_date_format').'" name="'.$this->get_field_name('post_date_format').'" type="text" value="'.esc_attr($post_date_format).'" />'.
+                    '</p>'.
+                    '<p>'.
+                        '<label for="'.$this->get_field_id('post_categories_separator').'">Categories separator (if more than one):</label>'.
+                        '<input class="widefat" id="'.$this->get_field_id('post_categories_separator').'" name="'.$this->get_field_name('post_categories_separator').'" type="text" value="'.esc_attr($post_categories_separator).'" />'.
+                    '</p>'.
                 '</div>'.
 		    '</div>'.
-            '<script>                       
-            function '.$this->defaults['widget_id'].'_sortingAlgorithmOnChange(val, div_id)
-            {
-                if( val==3 )
+            '<script type="text/javascript">                       
+                function '.$this->defaults['widget_id'].'_sortingAlgorithmOnChange( val, div_id )
                 {
-                    document.getElementById(div_id).style.display = "block";
-                }
-                else
-                {
-                    document.getElementById(div_id).style.display = "none";
+                    if( val==3 )
+                    {
+                        document.getElementById(div_id).style.display = "block";
+                    }
+                    else
+                    {
+                        document.getElementById(div_id).style.display = "none";
+                    }
+                    
+                    return true;
                 }
                 
-                return true;
-            }                   
+                function '.$this->defaults['widget_id'].'_postTypeOnChange( val, p_category_include_id, p_category_exclude_id )
+                {
+                    if( val==1 )
+                    {
+                        document.getElementById(p_category_include_id).style.display = "block";
+                        document.getElementById(p_category_exclude_id).style.display = "block";
+                    }
+                    else
+                    {
+                        document.getElementById(p_category_include_id).style.display = "none";
+                        document.getElementById(p_category_exclude_id).style.display = "none";
+                    }
+                    
+                    return true;
+                }
             </script>'
 		    );
 		    

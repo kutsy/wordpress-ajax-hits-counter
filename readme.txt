@@ -3,7 +3,7 @@ Contributors: kutsy
 Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, links, performance
 Requires at least: 3.0
 Tested up to: 3.6.1
-Stable tag: 0.8.8
+Stable tag: 0.9.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,7 +19,9 @@ Popular Posts Widget included.
 
 You can fully customize displaying of widget by using predefined placeholders, such as `{post_id}`, `{post_title}`, `{post_title_N}`, `{post_excerpt_N}`, `{post_author}`, `{post_author_link}`, `{permalink}`, `{post_date}`, `{thumbnail-[medium|...|64x64]}`, `{post_categories}`, `{post_hits}` and `{post_comments_count}`.
 
-Also you can show hits count in Posts/Pages Loop. Simply add this line: `<?php echo(ajax_hits_counter_get_hits(get_the_ID())); ?>` or equivalent `<?= ajax_hits_counter_get_hits(get_the_ID()) ?>`.
+Also you can show hits count in Posts/Pages Loop. 
+Simply add this line: `<?php echo(ajax_hits_counter_get_hits(get_the_ID())); ?>` or equivalent `<?= ajax_hits_counter_get_hits(get_the_ID()) ?>`. 
+Also you can use shortcode `[hits]`.
 
 == Installation ==
 
@@ -35,6 +37,17 @@ Also you can show hits count in Posts/Pages Loop. Simply add this line: `<?php e
 1. Tools: Import views count (hits) from plugin WP-PostViews to hits of AJAX Hits Counter
 
 == Changelog ==
+
+= 0.9.2 [2013-10-22] =
+* Bug fixes
+
+= 0.9.1 [2013-10-22] =
+* Added shortcode `[hits]` (or `[hits id=12345]`). Thanks for the idea to [AsankaD](http://wordpress.org/support/profile/asankad).
+* Small bugs fixes
+
+= 0.9.0 [2013-10-22] =
+* Added very fast (rapid) alternative hits counter script that used WP constant `SHORTINIT`. You can choose script type via Settings checkbox in admin area.
+* Changed design of Popular Posts Widget
 
 = 0.8.8 [2013-09-15] =
 * Added classes for `<li>` elements: `item-num-<NUMBER_IN_ORDER>` and `item-id-<POST_ID>`
