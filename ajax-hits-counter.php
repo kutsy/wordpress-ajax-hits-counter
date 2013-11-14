@@ -2,9 +2,9 @@
 
 /**
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
- * Plugin URI: http://romantelychko.com/downloads/wordpress/plugins/ajax-hits-counter.latest.zip
+ * Plugin URI: http://wordpress.org/plugins/ajax-hits-counter/
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.9.2
+ * Version: 0.9.3
  * Author: Roman Telychko
  * Author URI: http://romantelychko.com
 */
@@ -21,6 +21,11 @@ class AJAX_Hits_Counter
     protected $settings = array(
         'use_rapid_incrementer'         => 0,
     );
+    
+    ///////////////////////////////////////////////////////////////////////////
+    
+    protected $plugin_title = 'AJAX Hits Counter';
+    protected $plugin_alias = 'ajax-hits-counter';
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -33,6 +38,9 @@ class AJAX_Hits_Counter
     {
         if( is_admin() )
         {
+            // load translation
+        	load_plugin_textdomain( $this->plugin_alias, false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+        
             // admin posts table
             add_filter( 'manage_posts_columns',                         array( $this, 'adminTableColumn' ) );
             add_filter( 'manage_posts_custom_column',                   array( $this, 'adminTableRow' ), 10, 2 );
@@ -58,8 +66,8 @@ class AJAX_Hits_Counter
             
             register_importer( 
                 __CLASS__.'_Importer',
-                'AJAX Hits Counter: Import from WP-PostViews',
-                'Imports views count (hits) from plugin <a href="http://wordpress.org/plugins/wp-postviews">WP-PostViews</a> to hits of <a href="http://wordpress.org/plugins/ajax-hits-counter/">AJAX Hits Counter</a>.',
+                $this->plugin_title.': '.__( 'Import from', $this->plugin_alias ).' WP-PostViews',
+                __( 'Imports views count (hits) from plugin', $this->plugin_alias ).' <a href="http://wordpress.org/plugins/wp-postviews">WP-PostViews</a> '.__( 'to hits of', $this->plugin_alias ).' <a href="http://wordpress.org/plugins/'.$this->plugin_alias.'/">'.$this->plugin_title.'</a>.',
                 array( $this, 'adminImporter' )
                 );
         }
@@ -73,8 +81,8 @@ class AJAX_Hits_Counter
         add_action( 'widgets_init',                                     array( $this, 'register' ) );
 
         // AJAX increment hits init    
-        add_action( 'wp_ajax_nopriv_ajax-hits-counter-increment',       array( $this, 'incrementHits' ) );
-        add_action( 'wp_ajax_ajax-hits-counter-increment',              array( $this, 'incrementHits' ) );
+        add_action( 'wp_ajax_nopriv_'.$this->plugin_alias.'-increment', array( $this, 'incrementHits' ) );
+        add_action( 'wp_ajax_'.$this->plugin_alias.'-increment',        array( $this, 'incrementHits' ) );
         
         // shortcode
         add_shortcode( 'hits',                                          array( $this, 'getHitsShortcode' ) );
@@ -128,7 +136,7 @@ class AJAX_Hits_Counter
             }
             else                                                // use simple incrementer
             {
-                $incrementer_url = admin_url( 'admin-ajax.php' ).'?action=ajax-hits-counter-increment&post_id='.$post->ID.'&t=';
+                $incrementer_url = admin_url( 'admin-ajax.php' ).'?action='.$this->plugin_alias.'-increment&post_id='.$post->ID.'&t=';
             }
         
             $content .=
@@ -250,7 +258,7 @@ class AJAX_Hits_Counter
     public function adminMenu()
     {
 	    // create new top-level menu
-	    add_menu_page( 'AJAX Hits Counter', 'AJAX Hits Counter', 'administrator', __FILE__, array( $this, 'adminSettingsPage' ) );
+	    add_menu_page( $this->plugin_title, $this->plugin_title, 'administrator', __FILE__, array( $this, 'adminSettingsPage' ) );
 
 	    // call register settings function
 	    add_action( 'admin_init', array( $this, 'adminSettingsRegister' ) );
@@ -273,7 +281,7 @@ class AJAX_Hits_Counter
     
         echo(
             '<div class="wrap">'.
-                '<h2>AJAX Hits Counter: Settings</h2>'.
+                '<h2>'.$this->plugin_title.': '.__( 'Settings', $this->plugin_alias ).'</h2>'.
                     '<form method="post" action="options.php">'
             );
             
@@ -284,7 +292,7 @@ class AJAX_Hits_Counter
                 '<tr valign="top">'.
                     '<td colspan="2">'.
                         '<input type="checkbox" '.( $this->settings['use_rapid_incrementer']==1 ? ' checked="checked"' : '' ).' name="ajaxhc_use_rapid_incrementer" id="ajaxhc_use_rapid_incrementer" value="1" />'.
-                        '<label for="ajaxhc_use_rapid_incrementer">&nbsp;Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher)</label>'.
+                        '<label for="ajaxhc_use_rapid_incrementer">&nbsp;'.__( 'Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher', $this->plugin_alias ).'</label>'.
                     '</td>'.
                 '</tr>'.
             '</table>'
@@ -478,7 +486,7 @@ class AJAX_Hits_Counter
         $hits = get_post_meta( $post->ID, 'hits', true );
 
         echo( 
-            '<label for="hits">Hits count</label>&nbsp;&nbsp;'.
+            '<label for="hits">'.__( 'Hits count', $this->plugin_alias ).'</label>&nbsp;&nbsp;'.
             '<input type="text" name="hits" id="hits" value="'.( !empty($hits) ? $hits : '0' ).'" />' 
             );
     }
@@ -496,7 +504,7 @@ class AJAX_Hits_Counter
 	    
 	    $html = 
 		    '<div class="wrap">'.
-		        '<h2>AJAX Hits Counter: Import from WP-PostViews</h2>'.
+		        '<h2>'.$this->plugin_title.': '.__( 'Import from', $this->plugin_alias ).' WP-PostViews</h2>'.
 		        '<div class="clear"></div>';
     
         ///////////////////////////////////////////////////////////////////////
@@ -524,17 +532,17 @@ class AJAX_Hits_Counter
             if( empty($total) )
             {
 	            $html .= 
-	                '<p>We found <strong>no items</strong> to import from WP-PostViews plugin.</p>'.
-	                '<p>Have I hice day ;-)</p>';
+	                '<p>'.__( 'We found', $this->plugin_alias ).' <strong>'.__( 'no items', $this->plugin_alias ).'</strong> '.__( 'to import from WP-PostViews plugin', $this->plugin_alias ).'.</p>'.
+	                '<p>'.__( 'Have I hice day', $this->plugin_alias ).' ;-)</p>';
             }
             else
             {
                 $html .= 
-                    '<p>We found <strong>'.$total.' items</strong> to import from WP-PostViews plugin.</p>'.
-                    '<p>To start import please click "Start procession" button.</p>'.
+                    '<p>'.__( 'We found', $this->plugin_alias ).' <strong>'.$total.' '.__( 'items', $this->plugin_alias ).'</strong> '.__( 'to import from WP-PostViews plugin', $this->plugin_alias ).'.</p>'.
+                    '<p>'.__( 'To start import please click "Start import" button.', $this->plugin_alias ).'</p>'.
                     '<form method="post">'.
                         wp_nonce_field( plugin_basename( __FILE__ ), 'ajax_hits_counter_nonce', true, false ).
-                        '<input type="submit" value="Start procession" class="button" name="start" />'.
+                        '<input type="submit" value="'.__( 'Start import', $this->plugin_alias ).'" class="button" name="start" />'.
                     '</form>';
             }
             
@@ -592,14 +600,15 @@ class AJAX_Hits_Counter
                 }
                 
 	            $html .= 
-	                '<p>Imported <strong>'.$status['total'].' items</strong> (inserted: <strong>'.$status['inserted'].'</strong>, updated: <strong>'.$status['updated'].'</strong>, skipped: <strong>'.$status['skipped'].'</strong>)</p>'.
-	                '<p>Thank you for choosing our plugin.</p>';
+	                '<p>'.__( 'Imported', $this->plugin_alias ).' <strong>'.$status['total'].' '.__( 'items', $this->plugin_alias ).'</strong> '.
+	                     '('.__( 'inserted', $this->plugin_alias ).': <strong>'.$status['inserted'].'</strong>, '.__( 'updated', $this->plugin_alias ).': <strong>'.$status['updated'].'</strong>, '.__( 'skipped', $this->plugin_alias ).': <strong>'.$status['skipped'].'</strong>)</p>'.
+	                '<p>'.__( 'Thank you for choosing our plugin.', $this->plugin_alias ).'</p>';
             }
             else
             {
 	            $html .= 
-	                '<p>We found <strong>no items</strong> to import from WP-PostViews plugin.</p>'.
-	                '<p>Have I hice day ;-)</p>';
+	                '<p>'.__( 'We found', $this->plugin_alias ).' <strong>'.__( 'no items', $this->plugin_alias ).'</strong> '.__( 'to import from WP-PostViews plugin', $this->plugin_alias ).'.</p>'.
+	                '<p>'.__( 'Have I hice day', $this->plugin_alias ).' ;-)</p>';
             }
             
             ///////////////////////////////////////////////////////////////////
@@ -645,6 +654,11 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 
     ///////////////////////////////////////////////////////////////////////////
 
+    protected $plugin_title = 'AJAX Hits Counter';
+    protected $plugin_alias = 'ajax-hits-counter';
+
+    ///////////////////////////////////////////////////////////////////////////
+
 	/**
 	 * AJAX_Hits_Counter_Popular_Posts_Widget::__construct()
 	 * ( Register widget with WordPress )
@@ -657,9 +671,9 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 		
 		parent::__construct(
 	 		$this->defaults['widget_id'],
-			'AJAX Hits Counter: Popular Posts',
+			$this->plugin_title.': '.__( 'Popular Posts', $this->plugin_alias ),
 			array(
-			    'description'   => 'Displays popular posts/pages counted by AJAX Hits Counter.', 
+			    'description'   => __( 'Displays popular posts/pages counted by', $this->plugin_alias ).' '.$this->plugin_title.'.', 
 			    'classname'     => $this->defaults['widget_id'],
 			    ),
 		    array(
@@ -1371,19 +1385,20 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         margin:0;
                         padding:0 0 2px 0;
                     }
-            </style>'.
+            </style>'.            
+            
 		    '<div class="'.$this->defaults['widget_id'].'_div">'.
                 '<div class="'.$this->defaults['widget_id'].'_div_left">'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('title').'">Widget title:</label>'.
+                        '<label for="'.$this->get_field_id('title').'">'.__( 'Widget title', $this->plugin_alias ).':</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('title').'" name="'.$this->get_field_name('title').'" type="text" value="'.esc_attr($title).'" />'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('sorting_algorithm').'">Sorting algorithm (order by):</label>'.
+                        '<label for="'.$this->get_field_id('sorting_algorithm').'">'.__( 'Sorting algorithm (order by)', $this->plugin_alias ).':</label>'.
                         '<select class="widefat" id="'.$this->get_field_id('sorting_algorithm').'" name="'.$this->get_field_name('sorting_algorithm').'" onChange="return '.$this->defaults['widget_id'].'_sortingAlgorithmOnChange(this.value, \''.$this->get_field_id('sorting_coefficient_div').'\');">'.
-                            '<option value="1"'.( $sorting_algorithm<2 || $sorting_algorithm>3 ? ' selected="selected"' : '' ).'>Hits count</option>'.
-                            '<option value="2"'.( $sorting_algorithm==2 ? ' selected="selected"' : '' ).'>Comments count</option>'.
-                            '<option value="3"'.( $sorting_algorithm==3 ? ' selected="selected"' : '' ).'>N * Hits count + K * Comments count</option>'.
+                            '<option value="1"'.( $sorting_algorithm<2 || $sorting_algorithm>3 ? ' selected="selected"' : '' ).'>'.__( 'Hits count', $this->plugin_alias ).'</option>'.
+                            '<option value="2"'.( $sorting_algorithm==2 ? ' selected="selected"' : '' ).'>'.__( 'Comments count', $this->plugin_alias ).'</option>'.
+                            '<option value="3"'.( $sorting_algorithm==3 ? ' selected="selected"' : '' ).'>'.__( 'N * Hits count + K * Comments count', $this->plugin_alias ).'</option>'.
                         '</select>'.
                         '<div '.( $sorting_algorithm==3 ? 'style="display:block;"' : 'style="display:none;"' ).' id="'.$this->get_field_id('sorting_coefficient_div').'" class="sorting_coefficient_div">'.
                             'N = <input id="'.$this->get_field_id('sorting_coefficient_n').'" name="'.$this->get_field_name('sorting_coefficient_n').'" type="text" value="'.esc_attr($sorting_coefficient_n).'" /><br />'.
@@ -1391,24 +1406,24 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         '</div>'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('count').'">Display count:</label>'.
+                        '<label for="'.$this->get_field_id('count').'">'.__( 'Display count', $this->plugin_alias ).':</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('count').'" name="'.$this->get_field_name('count').'" type="text" value="'.esc_attr($count).'" />'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('cache_lifetime').'">Cache lifetime (seconds):</label>'.
+                        '<label for="'.$this->get_field_id('cache_lifetime').'">'.__( 'Cache lifetime (in seconds)', $this->plugin_alias ).':</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('cache_lifetime').'" name="'.$this->get_field_name('cache_lifetime').'" type="text" value="'.esc_attr($cache_lifetime).'" />'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('post_type').'">Posts types:</label>'.
+                        '<label for="'.$this->get_field_id('post_type').'">'.__( 'Posts types', $this->plugin_alias ).':</label>'.
                         '<select class="widefat" id="'.$this->get_field_id('post_type').'" name="'.$this->get_field_name('post_type').'" onChange="return '.$this->defaults['widget_id'].'_postTypeOnChange(this.value, \''.$this->get_field_id('post_category_include').'_p\', \''.$this->get_field_id('post_category_exclude').'_p\');">'.
-                            '<option value="0"'.( $post_type==0 ? ' selected="selected"' : '' ).'>Posts & Pages</option>'.
-                            '<option value="1"'.( $post_type==1 ? ' selected="selected"' : '' ).'>Posts only</option>'.
-                            '<option value="2"'.( $post_type==2 ? ' selected="selected"' : '' ).'>Pages only</option>'.
+                            '<option value="0"'.( $post_type==0 ? ' selected="selected"' : '' ).'>'.__( 'Posts & Pages', $this->plugin_alias ).'</option>'.
+                            '<option value="1"'.( $post_type==1 ? ' selected="selected"' : '' ).'>'.__( 'Posts only', $this->plugin_alias ).'</option>'.
+                            '<option value="2"'.( $post_type==2 ? ' selected="selected"' : '' ).'>'.__( 'Pages only', $this->plugin_alias ).'</option>'.
                             //  TODO: add custom types
                         '</select>'.
                     '</p>'.
                     '<p '.( $post_type==1 ? 'style="display:block;"' : 'style="display:none;"' ).' id="'.$this->get_field_id('post_category_include').'_p">'.
-                        '<label for="'.$this->get_field_id('post_category_include').'">Include category:</label>'.
+                        '<label for="'.$this->get_field_id('post_category_include').'">'.__( 'Include category', $this->plugin_alias ).':</label>'.
                         $this->_dropdownCategories(
                             array(
                                 'id'                => $this->get_field_id('post_category_include'),
@@ -1418,7 +1433,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                             ).
                     '</p>'.
                     '<p '.( $post_type==1 ? 'style="display:block;"' : 'style="display:none;"' ).' id="'.$this->get_field_id('post_category_exclude').'_p">'.
-                        '<label for="'.$this->get_field_id('post_category_exclude').'">Exclude posts from this category:</label>'.
+                        '<label for="'.$this->get_field_id('post_category_exclude').'">'.__( 'Exclude posts from this category', $this->plugin_alias ).':</label>'.
                         $this->_dropdownCategories(
                             array(
                                 'id'                => $this->get_field_id('post_category_exclude'),
@@ -1431,48 +1446,48 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         ).
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('date_range').'">Posts publish date range:</label>'.
+                        '<label for="'.$this->get_field_id('date_range').'">'.__( 'Posts publish date range', $this->plugin_alias ).':</label>'.
                         '<select class="widefat" id="'.$this->get_field_id('date_range').'" name="'.$this->get_field_name('date_range').'">'.
-                            '<option value="1"'.( $date_range<=1 ? ' selected="selected"' : '' ).'>Day</option>'.
-                            '<option value="2"'.( $date_range==2 ? ' selected="selected"' : '' ).'>Week</option>'.
-                            '<option value="3"'.( $date_range==3 ? ' selected="selected"' : '' ).'>Month</option>'.
-                            '<option value="4"'.( $date_range==4 ? ' selected="selected"' : '' ).'>3 Months</option>'.
-                            '<option value="5"'.( $date_range==5 ? ' selected="selected"' : '' ).'>6 Months</option>'.
-                            '<option value="6"'.( $date_range==6 ? ' selected="selected"' : '' ).'>Year</option>'.
-                            '<option value="7"'.( $date_range>=7 ? ' selected="selected"' : '' ).'>All time</option>'.
+                            '<option value="1"'.( $date_range<=1 ? ' selected="selected"' : '' ).'>'.__( 'Day', $this->plugin_alias ).'</option>'.
+                            '<option value="2"'.( $date_range==2 ? ' selected="selected"' : '' ).'>'.__( 'Week', $this->plugin_alias ).'</option>'.
+                            '<option value="3"'.( $date_range==3 ? ' selected="selected"' : '' ).'>'.__( 'Month', $this->plugin_alias ).'</option>'.
+                            '<option value="4"'.( $date_range==4 ? ' selected="selected"' : '' ).'>'.__( '3 Months', $this->plugin_alias ).'</option>'.
+                            '<option value="5"'.( $date_range==5 ? ' selected="selected"' : '' ).'>'.__( '6 Months', $this->plugin_alias ).'</option>'.
+                            '<option value="6"'.( $date_range==6 ? ' selected="selected"' : '' ).'>'.__( 'Year', $this->plugin_alias ).'</option>'.
+                            '<option value="7"'.( $date_range>=7 ? ' selected="selected"' : '' ).'>'.__( 'All time', $this->plugin_alias ).'</option>'.
                         '</select>'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('custom_css').'">Custom CSS (remove if unneeded):</label>'.
+                        '<label for="'.$this->get_field_id('custom_css').'">'.__( 'Custom CSS (remove if unneeded)', $this->plugin_alias ).':</label>'.
                         '<textarea class="widefat" cols="20" rows="6" id="'.$this->get_field_id('custom_css').'" name="'.$this->get_field_name('custom_css').'">'.$custom_css.'</textarea>'.
                     '</p>'.
                 '</div>'.
                 '<div class="'.$this->defaults['widget_id'].'_div_right">'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('one_element_html').'">HTML of one element/item (inside <code>&lt;LI&gt;</code>):</label>'.
+                        '<label for="'.$this->get_field_id('one_element_html').'">'.__( 'HTML of one element/item', $this->plugin_alias ).' ('.__( 'inside tag', $this->plugin_alias ).' <code>&lt;LI&gt;</code>):</label>'.
                         '<textarea class="widefat" cols="20" rows="8" id="'.$this->get_field_id('one_element_html').'" name="'.$this->get_field_name('one_element_html').'">'.$one_element_html.'</textarea>'.
-                        'You can use this placeholders:'.
+                        __( 'You can use this placeholders', $this->plugin_alias ).':'.
                         '<ul>'.
-                            '<li><code>{post_id}</code> - Post ID</li>'.
-                            '<li><code>{post_title}</code> - Post title</li>'.
-                            '<li><code>{post_title_N}</code> - Post title, where <code>N</code> - is words count<br />&nbsp;&nbsp;For example: <code>{post_title_16}</code></li>'.
-                            '<li><code>{post_excerpt_N}</code> - Post excerpt, where <code>N</code> - is words count<br />&nbsp;&nbsp;For example: <code>{post_excerpt_10}</code> or <code>{post_excerpt_255}</code></li>'.
-                            '<li><code>{post_author}</code> - Post author name</li>'.
-                            '<li><code>{post_author_link}</code> - Post author link</li>'.
-                            '<li><code>{permalink}</code> - Post link</li>'.
-                            '<li><code>{post_date}</code> - Post date</li>'.
-                            '<li><code>{thumbnail-[medium|...|64x64]}</code> - Post thumbnail with size<br />&nbsp;&nbsp;For example: <code>{thumbnail-large}</code> or <code>{thumbnail-320x240}</code>'.
-                            '<li><code>{post_categories}</code> - Links to post categories with <code>'.$post_categories_separator.'</code> as separator</li>'.
-                            '<li><code>{post_hits}</code> - Post hits, counted by this plugin</li>'.
-                            '<li><code>{post_comments_count}</code> - Post comments count</li>'.
+                            '<li><code>{post_id}</code> - '.__( 'Post ID', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_title}</code> - '.__( 'Post title', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_title_N}</code> - '.__( 'Post title, where', $this->plugin_alias ).' <code>N</code> - '.__( 'is words count', $this->plugin_alias ).'<br />&nbsp;&nbsp;'.__( 'For example', $this->plugin_alias ).': <code>{post_title_16}</code></li>'.
+                            '<li><code>{post_excerpt_N}</code> - '.__( 'Post excerpt, where', $this->plugin_alias ).' <code>N</code> - '.__( 'is words count', $this->plugin_alias ).'<br />&nbsp;&nbsp;'.__( 'For example', $this->plugin_alias ).': <code>{post_excerpt_10}</code> '.__( 'or', $this->plugin_alias ).' <code>{post_excerpt_255}</code></li>'.
+                            '<li><code>{post_author}</code> - '.__( 'Post author name', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_author_link}</code> - '.__( 'Post author link', $this->plugin_alias ).'</li>'.
+                            '<li><code>{permalink}</code> - '.__( 'Post link', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_date}</code> - '.__( 'Post date', $this->plugin_alias ).'</li>'.
+                            '<li><code>{thumbnail-[medium|...|64x64]}</code> - '.__( 'Post thumbnail with size', $this->plugin_alias ).'<br />&nbsp;&nbsp;'.__( 'For example', $this->plugin_alias ).': <code>{thumbnail-large}</code> '.__( 'or', $this->plugin_alias ).' <code>{thumbnail-320x240}</code>'.
+                            '<li><code>{post_categories}</code> - '.__( 'Links to post categories with', $this->plugin_alias ).' <code>'.$post_categories_separator.'</code> '.__( 'as separator', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_hits}</code> - '.__( 'Post hits, counted by this plugin', $this->plugin_alias ).'</li>'.
+                            '<li><code>{post_comments_count}</code> - '.__( 'Post comments count', $this->plugin_alias ).'</li>'.
                         '</ul>'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('post_date_format').'">Date format (for more info see <a href="http://php.net/manual/en/function.date.php" target="_BLANK">date() manual</a>):</label>'.
+                        '<label for="'.$this->get_field_id('post_date_format').'">'.__( 'Date format', $this->plugin_alias ).' ('.__( 'for more info see', $this->plugin_alias ).' <a href="http://php.net/manual/en/function.date.php" target="_BLANK">'.__( 'date() manual', $this->plugin_alias ).'</a>):</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('post_date_format').'" name="'.$this->get_field_name('post_date_format').'" type="text" value="'.esc_attr($post_date_format).'" />'.
                     '</p>'.
                     '<p>'.
-                        '<label for="'.$this->get_field_id('post_categories_separator').'">Categories separator (if more than one):</label>'.
+                        '<label for="'.$this->get_field_id('post_categories_separator').'">'.__( 'Categories separator (if more than one)', $this->plugin_alias ).':</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('post_categories_separator').'" name="'.$this->get_field_name('post_categories_separator').'" type="text" value="'.esc_attr($post_categories_separator).'" />'.
                     '</p>'.
                 '</div>'.
@@ -1541,9 +1556,9 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 
         $html = 
             '<select id="'.$args['id'].'" name="'.$args['name'].'" class="'.$args['class'].'">'.
-                ( $args['display_any']          ? '<option value="-1"'.( $args['selected']==-1 ? ' selected="selected"' : '' ).'>Any</option>'                          : '' ).
-                ( $args['display_current']      ? '<option value="-2"'.( $args['selected']==-2 ? ' selected="selected"' : '' ).'>Current Category / Any</option>'       : '' ).
-                ( $args['display_none']         ? '<option value="-3"'.( $args['selected']==-3 ? ' selected="selected"' : '' ).'>None</option>'                         : '' );
+                ( $args['display_any']          ? '<option value="-1"'.( $args['selected']==-1 ? ' selected="selected"' : '' ).'>'.__( 'Any', $this->plugin_alias ).'</option>'                          : '' ).
+                ( $args['display_current']      ? '<option value="-2"'.( $args['selected']==-2 ? ' selected="selected"' : '' ).'>'.__( 'Current Category / Any', $this->plugin_alias ).'</option>'       : '' ).
+                ( $args['display_none']         ? '<option value="-3"'.( $args['selected']==-3 ? ' selected="selected"' : '' ).'>'.__( 'None', $this->plugin_alias ).'</option>'                         : '' );
                 
 		///////////////////////////////////////////////////////////////////////
 

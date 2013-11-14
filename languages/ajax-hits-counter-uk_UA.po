@@ -1,0 +1,292 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AJAX Hits Counter\n"
+"POT-Creation-Date: 2013-11-14 15:09+0300\n"
+"PO-Revision-Date: 2013-11-14 15:46+0300\n"
+"Last-Translator: Roman Telychko <roman@romantelychko.com>\n"
+"Language-Team: Roman Telychko <roman@romantelychko.com>\n"
+"Language: uk_UA\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-SearchPath-1: .\n"
+
+#: ../ajax-hits-counter.php:69 ../ajax-hits-counter.php:507
+msgid "Import from"
+msgstr "Імпорт з"
+
+#: ../ajax-hits-counter.php:70
+msgid "Imports views count (hits) from plugin"
+msgstr "Імпорт переглядів (хітів) з плагіна"
+
+#: ../ajax-hits-counter.php:70
+msgid "to hits of"
+msgstr "в хити плагіна"
+
+#: ../ajax-hits-counter.php:284
+msgid "Settings"
+msgstr "Налаштування"
+
+#: ../ajax-hits-counter.php:295
+msgid ""
+"Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress "
+"version 3.4 or higher"
+msgstr ""
+"Використовувати дуже швидкий скрипт підрахунку переглядів (Увага! Потрібен "
+"Wordpress версії 3.4 та вище)"
+
+#: ../ajax-hits-counter.php:489 ../ajax-hits-counter.php:1399
+msgid "Hits count"
+msgstr "Кількість переглядів (хітів)"
+
+#: ../ajax-hits-counter.php:535 ../ajax-hits-counter.php:541
+#: ../ajax-hits-counter.php:610
+msgid "We found"
+msgstr "Знайдено"
+
+#: ../ajax-hits-counter.php:535 ../ajax-hits-counter.php:610
+msgid "no items"
+msgstr "0 елементів"
+
+#: ../ajax-hits-counter.php:535 ../ajax-hits-counter.php:541
+#: ../ajax-hits-counter.php:610
+msgid "to import from WP-PostViews plugin"
+msgstr "для імпорту з плагіна WP-PostViews"
+
+#: ../ajax-hits-counter.php:536 ../ajax-hits-counter.php:611
+msgid "Have I hice day"
+msgstr "Вдалого дня"
+
+#: ../ajax-hits-counter.php:541 ../ajax-hits-counter.php:603
+msgid "items"
+msgstr "елементів"
+
+#: ../ajax-hits-counter.php:542
+msgid "To start import please click \"Start import\" button."
+msgstr "Для початку імпорту, будь ласка, натисніть кнопку \"Почати імпорт\""
+
+#: ../ajax-hits-counter.php:545
+msgid "Start import"
+msgstr "Почати імпорт"
+
+#: ../ajax-hits-counter.php:603
+msgid "Imported"
+msgstr "Імпортовано"
+
+#: ../ajax-hits-counter.php:604
+msgid "inserted"
+msgstr "додано"
+
+#: ../ajax-hits-counter.php:604
+msgid "updated"
+msgstr "оновлено"
+
+#: ../ajax-hits-counter.php:604
+msgid "skipped"
+msgstr "пропущено"
+
+#: ../ajax-hits-counter.php:605
+msgid "Thank you for choosing our plugin."
+msgstr "Дякуємо за використання нашего плагіна"
+
+#: ../ajax-hits-counter.php:674 ../ajax-hits-counter.php:1255
+msgid "Popular Posts"
+msgstr "Популярні записи"
+
+#: ../ajax-hits-counter.php:676
+msgid "Displays popular posts/pages counted by"
+msgstr "Відображає популярні записи/сторінки, підраховані плагіном"
+
+#: ../ajax-hits-counter.php:1393
+msgid "Widget title"
+msgstr "Назва віджета"
+
+#: ../ajax-hits-counter.php:1397
+msgid "Sorting algorithm (order by)"
+msgstr "Алгоритм сортування"
+
+#: ../ajax-hits-counter.php:1400
+msgid "Comments count"
+msgstr "Кількість коментарів"
+
+#: ../ajax-hits-counter.php:1401
+msgid "N * Hits count + K * Comments count"
+msgstr "N * кількість переглядів + K * кількість коментарів"
+
+#: ../ajax-hits-counter.php:1409
+msgid "Display count"
+msgstr "Кількість елементів"
+
+#: ../ajax-hits-counter.php:1413
+msgid "Cache lifetime (in seconds)"
+msgstr "Час життя кеша (у секундах)"
+
+#: ../ajax-hits-counter.php:1417
+msgid "Posts types"
+msgstr "Типи матеріалів"
+
+#: ../ajax-hits-counter.php:1419
+msgid "Posts & Pages"
+msgstr "Записи та сторінки"
+
+#: ../ajax-hits-counter.php:1420
+msgid "Posts only"
+msgstr "Тільки записи"
+
+#: ../ajax-hits-counter.php:1421
+msgid "Pages only"
+msgstr "Тільки сторінки"
+
+#: ../ajax-hits-counter.php:1426
+msgid "Include category"
+msgstr "Категорія"
+
+#: ../ajax-hits-counter.php:1436
+msgid "Exclude posts from this category"
+msgstr "Виключити записи цієї категорії"
+
+#: ../ajax-hits-counter.php:1449
+msgid "Posts publish date range"
+msgstr "Відобразити записи з датою публікації"
+
+#: ../ajax-hits-counter.php:1451
+msgid "Day"
+msgstr "За день"
+
+#: ../ajax-hits-counter.php:1452
+msgid "Week"
+msgstr "За тиждень"
+
+#: ../ajax-hits-counter.php:1453
+msgid "Month"
+msgstr "За місяць"
+
+#: ../ajax-hits-counter.php:1454
+msgid "3 Months"
+msgstr "За 3 місяці"
+
+#: ../ajax-hits-counter.php:1455
+msgid "6 Months"
+msgstr "За 6 місяців"
+
+#: ../ajax-hits-counter.php:1456
+msgid "Year"
+msgstr "За рік"
+
+#: ../ajax-hits-counter.php:1457
+msgid "All time"
+msgstr "За весь час"
+
+#: ../ajax-hits-counter.php:1461
+msgid "Custom CSS (remove if unneeded)"
+msgstr "Користувацький CSS (очистіть це поле, якщо не подрібно)"
+
+#: ../ajax-hits-counter.php:1467
+msgid "HTML of one element/item"
+msgstr "HTML одного елемента"
+
+#: ../ajax-hits-counter.php:1467
+msgid "inside tag"
+msgstr "усередині тега"
+
+#: ../ajax-hits-counter.php:1469
+msgid "You can use this placeholders"
+msgstr "Ви можете використовувати ці шаблони/плейсхолдери"
+
+#: ../ajax-hits-counter.php:1471
+msgid "Post ID"
+msgstr "ID запису/сторінки"
+
+#: ../ajax-hits-counter.php:1472
+msgid "Post title"
+msgstr "Назва запису/сторінки"
+
+#: ../ajax-hits-counter.php:1473
+msgid "Post title, where"
+msgstr "Назва запису/сторінки, де"
+
+#: ../ajax-hits-counter.php:1473 ../ajax-hits-counter.php:1474
+msgid "is words count"
+msgstr "це кількість слів"
+
+#: ../ajax-hits-counter.php:1473 ../ajax-hits-counter.php:1474
+#: ../ajax-hits-counter.php:1479
+msgid "For example"
+msgstr "Наприклад"
+
+#: ../ajax-hits-counter.php:1474
+msgid "Post excerpt, where"
+msgstr "Опис (excerpt) запису/сторінки, де"
+
+#: ../ajax-hits-counter.php:1474 ../ajax-hits-counter.php:1479
+msgid "or"
+msgstr "або"
+
+#: ../ajax-hits-counter.php:1475
+msgid "Post author name"
+msgstr "Автор запису/сторінки"
+
+#: ../ajax-hits-counter.php:1476
+msgid "Post author link"
+msgstr "Посилання на автора запису/сторінки"
+
+#: ../ajax-hits-counter.php:1477
+msgid "Post link"
+msgstr "Посилання на запис/сторінку"
+
+#: ../ajax-hits-counter.php:1478
+msgid "Post date"
+msgstr "Дата публікації запису/сторінки"
+
+#: ../ajax-hits-counter.php:1479
+msgid "Post thumbnail with size"
+msgstr "Зображення запису/сторінки с її розміром"
+
+#: ../ajax-hits-counter.php:1480
+msgid "Links to post categories with"
+msgstr "Посилання на категорії запису/сторінки, де"
+
+#: ../ajax-hits-counter.php:1480
+msgid "as separator"
+msgstr "у якості розділювача"
+
+#: ../ajax-hits-counter.php:1481
+msgid "Post hits, counted by this plugin"
+msgstr "Кількість переглядів (хітів) запису/сторінки, підраховані цим плагіном"
+
+#: ../ajax-hits-counter.php:1482
+msgid "Post comments count"
+msgstr "Кількість коментарів запису/сторінки"
+
+#: ../ajax-hits-counter.php:1486
+msgid "Date format"
+msgstr "Формат відображення дати"
+
+#: ../ajax-hits-counter.php:1486
+msgid "for more info see"
+msgstr "для детальної інформації дивіться"
+
+#: ../ajax-hits-counter.php:1486
+msgid "date() manual"
+msgstr "опис функції date()"
+
+#: ../ajax-hits-counter.php:1490
+msgid "Categories separator (if more than one)"
+msgstr "Розділювач категорій запису/сторінки (у випадку більше однієї)"
+
+#: ../ajax-hits-counter.php:1559
+msgid "Any"
+msgstr "Будь-яка"
+
+#: ../ajax-hits-counter.php:1560
+msgid "Current Category / Any"
+msgstr "Поточна категорія / Будь-яка"
+
+#: ../ajax-hits-counter.php:1561
+msgid "None"
+msgstr "Жодна"
