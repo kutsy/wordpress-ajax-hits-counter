@@ -1,8 +1,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: AJAX Hits Counter\n"
-"POT-Creation-Date: 2013-11-14 15:09+0300\n"
-"PO-Revision-Date: 2013-11-14 15:24+0300\n"
+"POT-Creation-Date: 2013-11-18 10:29+0300\n"
+"PO-Revision-Date: 2013-11-18 10:30+0300\n"
 "Last-Translator: Roman Telychko <roman@romantelychko.com>\n"
 "Language-Team: Roman Telychko <roman@romantelychko.com>\n"
 "Language: ru_RU\n"
@@ -39,6 +39,10 @@ msgid ""
 msgstr ""
 "Использовать очень быстрый скрипт подсчёта хитов (Внимание! Необходим "
 "Wordpress версии 3.4 и выше)"
+
+#: ../ajax-hits-counter.php:375
+msgid "Hits"
+msgstr "Просмотры"
 
 #: ../ajax-hits-counter.php:489 ../ajax-hits-counter.php:1399
 msgid "Hits count"

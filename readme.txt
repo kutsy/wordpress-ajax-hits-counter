@@ -3,7 +3,7 @@ Contributors: kutsy
 Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, links, performance
 Requires at least: 3.0
 Tested up to: 3.7.1
-Stable tag: 0.9.3
+Stable tag: 0.9.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,8 +20,12 @@ Popular Posts Widget included.
 You can fully customize displaying of widget by using predefined placeholders, such as `{post_id}`, `{post_title}`, `{post_title_N}`, `{post_excerpt_N}`, `{post_author}`, `{post_author_link}`, `{permalink}`, `{post_date}`, `{thumbnail-[medium|...|64x64]}`, `{post_categories}`, `{post_hits}` and `{post_comments_count}`.
 
 Also you can show hits count in Posts/Pages Loop. 
-Simply add this line: `<?php echo(ajax_hits_counter_get_hits(get_the_ID())); ?>` or equivalent `<?= ajax_hits_counter_get_hits(get_the_ID()) ?>`. 
-Also you can use shortcode `[hits]`.
+Simply add this line:
+`<?php echo(ajax_hits_counter_get_hits(get_the_ID())); ?>`
+or equivalent
+`<?= ajax_hits_counter_get_hits(get_the_ID()) ?>`
+
+Or you can use shortcode `[hits]`.
 
 == Installation ==
 
@@ -37,6 +41,9 @@ Also you can use shortcode `[hits]`.
 1. Tools: Import views count (hits) from plugin WP-PostViews to hits of AJAX Hits Counter
 
 == Changelog ==
+
+= 0.9.4 [2013-11-18] =
+* Added translation in spanish (`es_ES`) language. Thanks to [Maria Ramos](http://webhostinghub.com).
 
 = 0.9.3 [2013-11-14] =
 * Added translations in russian (`ru_RU`) and ukrainian (`uk_UA`) languages.

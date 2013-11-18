@@ -4,7 +4,7 @@
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
  * Plugin URI: http://wordpress.org/plugins/ajax-hits-counter/
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.9.3
+ * Version: 0.9.4
  * Author: Roman Telychko
  * Author URI: http://romantelychko.com
 */
@@ -372,7 +372,7 @@ class AJAX_Hits_Counter
 	 */
     public function adminTableColumn( $column )
     {
-        $column['hits'] = 'Hits';    
+        $column['hits'] = __( 'Hits', $this->plugin_alias );    
 
         return $column;
     }
