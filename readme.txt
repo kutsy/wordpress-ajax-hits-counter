@@ -3,7 +3,7 @@ Contributors: kutsy
 Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, links, performance
 Requires at least: 3.0
 Tested up to: 3.7.1
-Stable tag: 0.9.4
+Stable tag: 0.9.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,12 @@ Or you can use shortcode `[hits]`.
 1. Tools: Import views count (hits) from plugin WP-PostViews to hits of AJAX Hits Counter
 
 == Changelog ==
+
+= 0.9.6 [2013-11-29] =
+* Added translation in serbo-croatian (`sr_RS`) language. Thanks to [Borisa Djuraskovic](http://webhostinghub.com).
+
+= 0.9.5 [2013-11-29] =
+* Replace `filter_var()` for PHP < 5.2.0 support.
 
 = 0.9.4 [2013-11-18] =
 * Added translation in spanish (`es_ES`) language. Thanks to [Maria Ramos](http://webhostinghub.com).

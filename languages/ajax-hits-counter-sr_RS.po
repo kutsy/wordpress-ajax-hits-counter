@@ -1,0 +1,296 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: AJAX Hits Counter\n"
+"POT-Creation-Date: 2013-11-29 11:41+0300\n"
+"PO-Revision-Date: 2013-11-29 11:41+0300\n"
+"Last-Translator: Roman Telychko <roman@romantelychko.com>\n"
+"Language-Team: Borisa Djuraskovic <borisad@webhostinghub.com>\n"
+"Language: sr_RS\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.5.4\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-SearchPath-0: ..\n"
+"X-Poedit-SearchPath-1: .\n"
+
+#: ../ajax-hits-counter.php:69 ../ajax-hits-counter.php:521
+msgid "Import from"
+msgstr "Importuj sa"
+
+#: ../ajax-hits-counter.php:70
+msgid "Imports views count (hits) from plugin"
+msgstr "Imports brojanje prgleda (hits) sa plugina"
+
+#: ../ajax-hits-counter.php:70
+msgid "to hits of"
+msgstr "do hitova od"
+
+#: ../ajax-hits-counter.php:298
+msgid "Settings"
+msgstr "Postavke"
+
+#: ../ajax-hits-counter.php:309
+msgid ""
+"Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress "
+"version 3.4 or higher"
+msgstr ""
+"Koristi veoma brzi (rapidni) Hits Counter Script (PAŽNJA! pOTREBNA Wordpress "
+"verzija 3.4 ili veća"
+
+#: ../ajax-hits-counter.php:389
+msgid "Hits"
+msgstr "Pogodak"
+
+#: ../ajax-hits-counter.php:503 ../ajax-hits-counter.php:1413
+msgid "Hits count"
+msgstr "Brojanje pogodaka"
+
+#: ../ajax-hits-counter.php:549 ../ajax-hits-counter.php:555
+#: ../ajax-hits-counter.php:624
+msgid "We found"
+msgstr "Pronašli smo"
+
+#: ../ajax-hits-counter.php:549 ../ajax-hits-counter.php:624
+msgid "no items"
+msgstr "nema stavki"
+
+#: ../ajax-hits-counter.php:549 ../ajax-hits-counter.php:555
+#: ../ajax-hits-counter.php:624
+msgid "to import from WP-PostViews plugin"
+msgstr "za importovanje WP-PostViews plugin"
+
+#: ../ajax-hits-counter.php:550 ../ajax-hits-counter.php:625
+msgid "Have I hice day"
+msgstr "Lep dan vam želimo"
+
+#: ../ajax-hits-counter.php:555 ../ajax-hits-counter.php:617
+msgid "items"
+msgstr "stavke"
+
+#: ../ajax-hits-counter.php:556
+msgid "To start import please click \"Start import\" button."
+msgstr "Početi importovanje klikom na \"Start import\" dugme."
+
+#: ../ajax-hits-counter.php:559
+msgid "Start import"
+msgstr "Počni importovanje"
+
+#: ../ajax-hits-counter.php:617
+msgid "Imported"
+msgstr "Importovano"
+
+#: ../ajax-hits-counter.php:618
+msgid "inserted"
+msgstr "unešeno"
+
+#: ../ajax-hits-counter.php:618
+msgid "updated"
+msgstr "updateovana"
+
+#: ../ajax-hits-counter.php:618
+msgid "skipped"
+msgstr "preskočeno"
+
+#: ../ajax-hits-counter.php:619
+msgid "Thank you for choosing our plugin."
+msgstr "Hvala što ste izabrali naš plugin."
+
+#: ../ajax-hits-counter.php:688 ../ajax-hits-counter.php:1269
+msgid "Popular Posts"
+msgstr "Popularni Postovi"
+
+#: ../ajax-hits-counter.php:690
+msgid "Displays popular posts/pages counted by"
+msgstr "Prikaži popularne postove/stranicebrojano od strane"
+
+#: ../ajax-hits-counter.php:1407
+msgid "Widget title"
+msgstr "Widget naslov"
+
+#: ../ajax-hits-counter.php:1411
+msgid "Sorting algorithm (order by)"
+msgstr "Sortiranje algoritama naručeno od)"
+
+#: ../ajax-hits-counter.php:1414
+msgid "Comments count"
+msgstr "Brojanje komentara"
+
+#: ../ajax-hits-counter.php:1415
+msgid "N * Hits count + K * Comments count"
+msgstr "N * dotiče brojanje + K * brojanje komentara"
+
+#: ../ajax-hits-counter.php:1423
+msgid "Display count"
+msgstr "Brojanje prikaza"
+
+#: ../ajax-hits-counter.php:1427
+msgid "Cache lifetime (in seconds)"
+msgstr "Životno trajanje cache  (u sekundama)"
+
+#: ../ajax-hits-counter.php:1431
+msgid "Posts types"
+msgstr "Tipovi postova"
+
+#: ../ajax-hits-counter.php:1433
+msgid "Posts & Pages"
+msgstr "Postovi & Stranice"
+
+#: ../ajax-hits-counter.php:1434
+msgid "Posts only"
+msgstr "Samo postovi"
+
+#: ../ajax-hits-counter.php:1435
+msgid "Pages only"
+msgstr "Samo stranice"
+
+#: ../ajax-hits-counter.php:1440
+msgid "Include category"
+msgstr "Uključi kategoriju"
+
+#: ../ajax-hits-counter.php:1450
+msgid "Exclude posts from this category"
+msgstr "Isključi postove iz ove kategorije"
+
+#: ../ajax-hits-counter.php:1463
+msgid "Posts publish date range"
+msgstr "Postuj objavljeni raspon datuma"
+
+#: ../ajax-hits-counter.php:1465
+msgid "Day"
+msgstr "Dan"
+
+#: ../ajax-hits-counter.php:1466
+msgid "Week"
+msgstr "Nedelja"
+
+#: ../ajax-hits-counter.php:1467
+msgid "Month"
+msgstr "Mesec"
+
+#: ../ajax-hits-counter.php:1468
+msgid "3 Months"
+msgstr "3 Meseca"
+
+#: ../ajax-hits-counter.php:1469
+msgid "6 Months"
+msgstr "6 Meseca"
+
+#: ../ajax-hits-counter.php:1470
+msgid "Year"
+msgstr "Godina"
+
+#: ../ajax-hits-counter.php:1471
+msgid "All time"
+msgstr "Sva vremena"
+
+#: ../ajax-hits-counter.php:1475
+msgid "Custom CSS (remove if unneeded)"
+msgstr "Custom CSS (ukloniti ako nije potrebno)"
+
+#: ../ajax-hits-counter.php:1481
+msgid "HTML of one element/item"
+msgstr "HTML jednog elementa/stavke"
+
+#: ../ajax-hits-counter.php:1481
+msgid "inside tag"
+msgstr "tag unutra"
+
+#: ../ajax-hits-counter.php:1483
+msgid "You can use this placeholders"
+msgstr "Možete iskoristiti ove placeholders-e"
+
+#: ../ajax-hits-counter.php:1485
+msgid "Post ID"
+msgstr "Postuj ID"
+
+#: ../ajax-hits-counter.php:1486
+msgid "Post title"
+msgstr "Postuj naslov"
+
+#: ../ajax-hits-counter.php:1487
+msgid "Post title, where"
+msgstr "Postuj naslov, gde"
+
+#: ../ajax-hits-counter.php:1487 ../ajax-hits-counter.php:1488
+msgid "is words count"
+msgstr "je brojanje reči"
+
+#: ../ajax-hits-counter.php:1487 ../ajax-hits-counter.php:1488
+#: ../ajax-hits-counter.php:1493
+msgid "For example"
+msgstr "Npr"
+
+#: ../ajax-hits-counter.php:1488
+msgid "Post excerpt, where"
+msgstr "Postuj izvod, gde"
+
+#: ../ajax-hits-counter.php:1488 ../ajax-hits-counter.php:1493
+msgid "or"
+msgstr "ili"
+
+#: ../ajax-hits-counter.php:1489
+msgid "Post author name"
+msgstr "Postuj ime autora"
+
+#: ../ajax-hits-counter.php:1490
+msgid "Post author link"
+msgstr "Postuj link autora"
+
+#: ../ajax-hits-counter.php:1491
+msgid "Post link"
+msgstr "Postuj link"
+
+#: ../ajax-hits-counter.php:1492
+msgid "Post date"
+msgstr "Postuij datum"
+
+#: ../ajax-hits-counter.php:1493
+msgid "Post thumbnail with size"
+msgstr "Postuj thumbnail sa veličinom"
+
+#: ../ajax-hits-counter.php:1494
+msgid "Links to post categories with"
+msgstr "Linkovi za postovanje kategorija sa"
+
+#: ../ajax-hits-counter.php:1494
+msgid "as separator"
+msgstr "kao separator"
+
+#: ../ajax-hits-counter.php:1495
+msgid "Post hits, counted by this plugin"
+msgstr "Postuj hitove, brojani ovim plugiunom"
+
+#: ../ajax-hits-counter.php:1496
+msgid "Post comments count"
+msgstr "Brojanje postova komentara"
+
+#: ../ajax-hits-counter.php:1500
+msgid "Date format"
+msgstr "Format datuma"
+
+#: ../ajax-hits-counter.php:1500
+msgid "for more info see"
+msgstr "za više info pogledaj"
+
+#: ../ajax-hits-counter.php:1500
+msgid "date() manual"
+msgstr "datum() manualno"
+
+#: ../ajax-hits-counter.php:1504
+msgid "Categories separator (if more than one)"
+msgstr "Separator kategorija (ako više od jednog)"
+
+#: ../ajax-hits-counter.php:1573
+msgid "Any"
+msgstr "Bilo koja"
+
+#: ../ajax-hits-counter.php:1574
+msgid "Current Category / Any"
+msgstr "Trenutna kategorija / Bilo koja"
+
+#: ../ajax-hits-counter.php:1575
+msgid "None"
+msgstr "Ništa"
