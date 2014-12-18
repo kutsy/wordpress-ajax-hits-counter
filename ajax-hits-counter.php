@@ -4,7 +4,7 @@
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
  * Plugin URI: http://wordpress.org/plugins/ajax-hits-counter/
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.9.6
+ * Version: 0.9.8
  * Author: Roman Telychko
  * Author URI: http://romantelychko.com
 */
@@ -201,9 +201,10 @@ class AJAX_Hits_Counter
 	 * AJAX_Hits_Counter::getHits()
 	 *
 	 * @param       integer     $post_id
+	 * @param       integer     $hits_count_format
 	 * @return      integer
 	 */
-    public function getHits( $post_id )
+    public function getHits( $post_id, $hits_count_format = 1 )
     {
         if( function_exists('filter_var') )
         {
@@ -225,8 +226,51 @@ class AJAX_Hits_Counter
         {
             return 0;
         }
-        
-        return intval($hits);
+
+        return $this->hitsCountFormat( intval($hits), $hits_count_format );
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * AJAX_Hits_Counter::hitsCountFormat()
+     *
+     * @param       integer           $number
+     * @param       integer           $format
+     * @return      string
+     */
+    public function hitsCountFormat( $number, $format = 1 )
+    {
+        $number = intval($number);
+
+        switch( $format )
+        {
+            default:
+            case 1:     // 12345
+                return $number;
+                break;
+            case 2:     // 12,345
+                return number_format( $number, 0, '', ',' );
+                break;
+            case 3:     // 12 345
+                return number_format( $number, 0, '', ' ' );
+                break;
+            case 4:     // 12.345
+                return number_format( $number, 0, '', '.' );
+                break;
+            case 5:     // 12k
+            case 6:     // 12K
+                $unitElements   = ( $format == 5 ) ? array( '', 'K', 'M', 'G', 'T', 'P' ) : array( '', 'k', 'm', 'g', 't', 'p' );
+                $unitItem       = floor( log( intval($number), 1000 ) );
+
+                if( !isset($unitElements[$unitItem]) )
+                {
+                    $unitItem = count($unitElements);
+                }
+
+                return round( ( $number / pow( 1000, $unitItem ) ), 0 ).$unitElements[$unitItem];
+                break;
+        }
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -306,7 +350,7 @@ class AJAX_Hits_Counter
                 '<tr valign="top">'.
                     '<td colspan="2">'.
                         '<input type="checkbox" '.( $this->settings['use_rapid_incrementer']==1 ? ' checked="checked"' : '' ).' name="ajaxhc_use_rapid_incrementer" id="ajaxhc_use_rapid_incrementer" value="1" />'.
-                        '<label for="ajaxhc_use_rapid_incrementer">&nbsp;'.__( 'Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher', $this->plugin_alias ).'</label>'.
+                        '<label for="ajaxhc_use_rapid_incrementer">&nbsp;'.__( 'Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher', $this->plugin_alias ).')</label>'.
                     '</td>'.
                 '</tr>'.
             '</table>'
@@ -664,6 +708,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
         'post_category_exclude'     => -3,              // none
         'post_categories_separator' => ', ',
         'post_date_format'          => 'd.m.Y',
+        'hits_count_format'         => 1,               // hits count format: "12345"
         );
 
     ///////////////////////////////////////////////////////////////////////////
@@ -712,7 +757,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
      * @return      html
 	 */
 	public function widget( $args, $instance ) 
-	{	
+	{
 		///////////////////////////////////////////////////////////////////////
 
 	    // args
@@ -792,7 +837,9 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                     break;
                 
                 case 3:         // N * hits + K * comments
-                    $sql_sorting_algorithm = '( ( ( m.meta_value + 0 ) * '.$args['sorting_coefficient_n'].' ) + ( p.comment_count + 0 ) * '.$args['sorting_coefficient_k'].' ) DESC,';
+                    $sql_sorting_algorithm = 
+                        '( ( ( m.meta_value + 0 ) * '.( isset($args['sorting_coefficient_n']) && !empty($args['sorting_coefficient_n']) ? $args['sorting_coefficient_n'] : $this->defaults['sorting_coefficient_n'] ).' ) '.
+                        '+ ( p.comment_count + 0 ) * '.( isset($args['sorting_coefficient_k']) && !empty($args['sorting_coefficient_k']) ? $args['sorting_coefficient_k'] : $this->defaults['sorting_coefficient_k'] ).' ) DESC,';
                     break;
             }
         }
@@ -943,6 +990,13 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                 )';
         }
 
+        if( isset($args['exclude_postspages_ids']) && strlen($args['exclude_postspages_ids'])>0 )
+        {
+            $q .= '
+                AND
+                p.ID NOT IN ( '.$args['exclude_postspages_ids'].' )';
+        }
+
         // ORDER, LIMIT
         $q .= '
             ORDER BY '.
@@ -1021,7 +1075,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         $post_author_link,
                         get_permalink($post->ID),
                         date( $args['post_date_format'], strtotime($post->post_date) ),
-                        $post->post_hits,
+                        $this->hitsCountFormat( $post->post_hits, $args['hits_count_format'] ),
                         $post->post_comments_count,
                         ),
                     $args['one_element_html']
@@ -1162,6 +1216,49 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 	    
 		///////////////////////////////////////////////////////////////////////
 	}
+
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * AJAX_Hits_Counter_Popular_Posts_Widget::hitsCountFormat()
+     *
+     * @param       integer           $number
+     * @param       integer           $format
+     * @return      string
+     */
+    public function hitsCountFormat( $number, $format = 1 )
+    {
+        $number = intval($number);
+
+        switch( $format )
+        {
+            default:
+            case 1:     // 12345
+                return $number;
+                break;
+            case 2:     // 12,345
+                return number_format( $number, 0, '', ',' );
+                break;
+            case 3:     // 12 345
+                return number_format( $number, 0, '', ' ' );
+                break;
+            case 4:     // 12.345
+                return number_format( $number, 0, '', '.' );
+                break;
+            case 5:     // 12k
+            case 6:     // 12K
+                $unitElements   = ( $format == 5 ) ? array( '', 'K', 'M', 'G', 'T', 'P' ) : array( '', 'k', 'm', 'g', 't', 'p' );
+                $unitItem       = floor( log( intval($number), 1000 ) );
+
+                if( !isset($unitElements[$unitItem]) )
+                {
+                    $unitItem = count($unitElements);
+                }
+
+                return round( ( $number / pow( 1000, $unitItem ) ), 0 ).$unitElements[$unitItem];
+                break;
+        }
+    }
 	
 	///////////////////////////////////////////////////////////////////////////
 	
@@ -1221,31 +1318,61 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 	    
 		///////////////////////////////////////////////////////////////////////
 
-	    // return sanitized data
-		return array(
-		    'title'                         => trim( strip_tags( $new_instance['title'] ) ),
+        $data = array(
+            'title'                         => trim( strip_tags( $new_instance['title'] ) ),
             'sorting_algorithm'             => intval( preg_replace( '#[^0-9]#', '', $new_instance['sorting_algorithm'] ) ),
             'sorting_coefficient_n'         => intval( preg_replace( '#[^0-9]#', '', $new_instance['sorting_coefficient_n'] ) ),
             'sorting_coefficient_k'         => intval( preg_replace( '#[^0-9]#', '', $new_instance['sorting_coefficient_k'] ) ),
-		    'count'                         => intval( preg_replace( '#[^0-9]#', '', $new_instance['count'] ) ),
-		    'cache_lifetime'                => intval( preg_replace( '#[^0-9]#', '', $new_instance['cache_lifetime'] ) ),
-		    'date_range'                    => intval( preg_replace( '#[^1-9]#', '', $new_instance['date_range'] ) ),
-		    'one_element_html'              => trim( $new_instance['one_element_html'] ),
-		    'post_type'                     => intval( preg_replace( '#[^012]#', '', $new_instance['post_type'] ) ),
-		    'post_category'                 => intval( preg_replace( '#[^\-0-9]#', '', $new_instance['post_category'] ) ),
+            'count'                         => intval( preg_replace( '#[^0-9]#', '', $new_instance['count'] ) ),
+            'cache_lifetime'                => intval( preg_replace( '#[^0-9]#', '', $new_instance['cache_lifetime'] ) ),
+            'date_range'                    => intval( preg_replace( '#[^1-9]#', '', $new_instance['date_range'] ) ),
+            'one_element_html'              => trim( $new_instance['one_element_html'] ),
+            'post_type'                     => intval( preg_replace( '#[^012]#', '', $new_instance['post_type'] ) ),
+            'post_category'                 => intval( preg_replace( '#[^\-0-9]#', '', $new_instance['post_category'] ) ),
             'post_category_exclude'         => intval( preg_replace( '#[^\-0-9]#', '', $new_instance['post_category_exclude'] ) ),
-		    'post_categories_separator'     => $new_instance['post_categories_separator'],
-		    'post_date_format'              => trim( strip_tags( $new_instance['post_date_format'] ) ),
+            'post_categories_separator'     => $new_instance['post_categories_separator'],
+            'post_date_format'              => trim( strip_tags( $new_instance['post_date_format'] ) ),
             'custom_css'                    => trim(
-                                                   strip_tags(
-                                                       str_ireplace(
-                                                           '#'.$this->id_base.'-__i__',
-                                                           '#'.$this->id_base.'-'.$this->number,
-                                                           $new_instance['custom_css']
-                                                       )
-                                                   )
-                                               ),
-		);
+                                                    strip_tags(
+                                                        str_ireplace(
+                                                            '#'.$this->id_base.'-__i__',
+                                                            '#'.$this->id_base.'-'.$this->number,
+                                                            $new_instance['custom_css']
+                                                        )
+                                                    )
+                                                ),
+            'exclude_postspages_ids'        => preg_replace( '#[^0-9\,]#', '', $new_instance['exclude_postspages_ids'] ),
+            'hits_count_format'             => intval( preg_replace( '#[^12345]#', '', $new_instance['hits_count_format'] ) ),
+        );
+
+        if( strlen($data['exclude_postspages_ids'])>0 )
+        {
+            $temp_ids   = explode( ',', $data['exclude_postspages_ids'] );
+            $temp_ids2  = array();
+
+            $data['exclude_postspages_ids'] = '';
+
+            foreach( $temp_ids as $temp_id )
+            {
+                if( strlen($temp_id)>0 )
+                {
+                    $temp_id2[] = intval($temp_id);
+                }
+            }
+
+            if( !empty($temp_id2) )
+            {
+                $temp_id2 = array_unique($temp_id2);
+                sort($temp_id2);
+
+                $data['exclude_postspages_ids'] = join( ',', $temp_id2 );
+            }
+        }
+
+		///////////////////////////////////////////////////////////////////////
+
+	    // return sanitized data
+		return $data;
 		
 		///////////////////////////////////////////////////////////////////////
 	}
@@ -1280,7 +1407,9 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
 	    $post_categories_separator  = $this->defaults['post_categories_separator'];
 	    $post_date_format           = $this->defaults['post_date_format'];
         $custom_css                 = '';
-	
+        $exclude_postspages_ids     = '';
+        $hits_count_format          = $this->defaults['hits_count_format'];
+
 		///////////////////////////////////////////////////////////////////////
 	
 		if( isset($instance['title']) && strlen($instance['title'])>1 ) 
@@ -1333,20 +1462,10 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
             $post_category_exclude = intval($instance['post_category_exclude']);
         }
 
-		if( isset($instance['post_categories_separator']) && strlen($instance['post_categories_separator'])>0 ) 
-		{
-			$post_categories_separator = $instance['post_categories_separator'];
-		}
-		
-		if( isset($instance['post_date_format']) && strlen($instance['post_date_format'])>0 ) 
-		{
-			$post_date_format = $instance['post_date_format'];
-		}
-		
-		if( isset($instance['one_element_html']) && strlen($instance['one_element_html'])>1 ) 
-		{
-			$one_element_html = $instance['one_element_html'];
-		}
+        if( isset($instance['exclude_postspages_ids']) && strlen($instance['exclude_postspages_ids'])>0 )
+        {
+            $exclude_postspages_ids = $instance['exclude_postspages_ids'];
+        }
 
         if( isset($instance['custom_css']) )
         {
@@ -1362,6 +1481,26 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                 '#'.$temp_widget_id.' ul li .entry-content { /* one item style */ }';
         }
 
+		if( isset($instance['one_element_html']) && strlen($instance['one_element_html'])>1 ) 
+		{
+			$one_element_html = $instance['one_element_html'];
+		}
+
+        if( isset($instance['post_date_format']) && strlen($instance['post_date_format'])>0 )
+        {
+            $post_date_format = $instance['post_date_format'];
+        }
+
+        if( isset($instance['post_categories_separator']) && strlen($instance['post_categories_separator'])>0 )
+        {
+            $post_categories_separator = $instance['post_categories_separator'];
+        }
+
+        if( isset($instance['hits_count_format']) && intval($instance['hits_count_format'])>0 )
+        {
+            $hits_count_format = intval($instance['hits_count_format']);
+        }
+
 		///////////////////////////////////////////////////////////////////////
 				
 		echo(
@@ -1375,7 +1514,7 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                 }
                 .'.$this->defaults['widget_id'].'_div .'.$this->defaults['widget_id'].'_div_left,
                 .'.$this->defaults['widget_id'].'_div .'.$this->defaults['widget_id'].'_div_right {
-                    width:390px;
+                    width:388px;
                     float:left;
                     margin:0 20px 0 0;
                     display: block;
@@ -1472,6 +1611,10 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                         '</select>'.
                     '</p>'.
                     '<p>'.
+                        '<label for="'.$this->get_field_id('exclude_postspages_ids').'">'.__( 'Exclude Posts/Pages IDs (sep. by comma)', $this->plugin_alias ).':</label>'.
+                        '<input class="widefat" id="'.$this->get_field_id('exclude_postspages_ids').'" name="'.$this->get_field_name('exclude_postspages_ids').'" type="text" value="'.esc_attr($exclude_postspages_ids).'" />'.
+                    '</p>'.
+                    '<p>'.
                         '<label for="'.$this->get_field_id('custom_css').'">'.__( 'Custom CSS (remove if unneeded)', $this->plugin_alias ).':</label>'.
                         '<textarea class="widefat" cols="20" rows="6" id="'.$this->get_field_id('custom_css').'" name="'.$this->get_field_name('custom_css').'">'.$custom_css.'</textarea>'.
                     '</p>'.
@@ -1503,6 +1646,17 @@ class AJAX_Hits_Counter_Popular_Posts_Widget extends WP_Widget
                     '<p>'.
                         '<label for="'.$this->get_field_id('post_categories_separator').'">'.__( 'Categories separator (if more than one)', $this->plugin_alias ).':</label>'.
                         '<input class="widefat" id="'.$this->get_field_id('post_categories_separator').'" name="'.$this->get_field_name('post_categories_separator').'" type="text" value="'.esc_attr($post_categories_separator).'" />'.
+                    '</p>'.
+                    '<p>'.
+                        '<label for="'.$this->get_field_id('hits_count_format').'">'.__( 'Hits count format', $this->plugin_alias ).':</label>'.
+                        '<select class="widefat" id="'.$this->get_field_id('hits_count_format').'" name="'.$this->get_field_name('hits_count_format').'">'.
+                            '<option value="1"'.( $hits_count_format<=1 ? ' selected="selected"' : '' ).'>12345</option>'.
+                            '<option value="2"'.( $hits_count_format==2 ? ' selected="selected"' : '' ).'>12,345</option>'.
+                            '<option value="3"'.( $hits_count_format==3 ? ' selected="selected"' : '' ).'>12 345</option>'.
+                            '<option value="4"'.( $hits_count_format==4 ? ' selected="selected"' : '' ).'>12.345</option>'.
+                            '<option value="5"'.( $hits_count_format==5 ? ' selected="selected"' : '' ).'>12k</option>'.
+                            '<option value="6"'.( $hits_count_format>=6 ? ' selected="selected"' : '' ).'>12K</option>'.
+                        '</select>'.
                     '</p>'.
                 '</div>'.
 		    '</div>'.
@@ -1634,12 +1788,12 @@ $ahc->init();
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function ajax_hits_counter_get_hits( $post_id ) 
+function ajax_hits_counter_get_hits( $post_id, $hits_count_format = 1 )
 {
     $ahc = new AJAX_Hits_Counter();
     
     return 
-        $ahc->getHits( $post_id );
+        $ahc->getHits( $post_id, $hits_count_format );
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

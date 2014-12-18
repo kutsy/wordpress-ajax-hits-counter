@@ -1,9 +1,9 @@
 === AJAX Hits Counter + Popular Posts Widget ===
 Contributors: kutsy
-Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, links, performance
+Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, pageview, links, performance
 Requires at least: 3.0
-Tested up to: 3.7.1
-Stable tag: 0.9.6
+Tested up to: 4.0.1
+Stable tag: 0.9.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -41,6 +41,13 @@ Or you can use shortcode `[hits]`.
 1. Tools: Import views count (hits) from plugin WP-PostViews to hits of AJAX Hits Counter
 
 == Changelog ==
+
+= 0.9.8 [2014-12-18] =
+* Added possibility to set Hits Count format from predefined. Thanks for the idea to [emik91](https://wordpress.org/support/profile/emik91), [Dre_MPMG](https://wordpress.org/support/profile/dre_mpmg), [Pulseframe](https://wordpress.org/support/profile/pulseframe).
+* Added possibility to exclude Posts/Pages by their IDs. Thanks for the idea to [pFrog](https://wordpress.org/support/profile/pfrog).
+
+= 0.9.7 [2013-12-28] =
+* Bug fixes and visual fixes for Wordpress v3.8
 
 = 0.9.6 [2013-11-29] =
 * Added translation in serbo-croatian (`sr_RS`) language. Thanks to [Borisa Djuraskovic](http://webhostinghub.com).
