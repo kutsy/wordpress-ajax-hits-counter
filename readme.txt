@@ -2,8 +2,8 @@
 Contributors: kutsy
 Tags: hits, hit, view, views, postviews, post, posts, count, counter, ajax, nginx, javascript, popular, widget, top, customize, admin, page, pageview, links, performance
 Requires at least: 3.0
-Tested up to: 4.0.1
-Stable tag: 0.9.8
+Tested up to: 4.1
+Stable tag: 0.9.9
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -37,10 +37,15 @@ Or you can use shortcode `[hits]`.
 == Screenshots ==
 
 1. Popular Posts Widget
-1. Edit hits count in admin dashboard
+1. Edit Hits Count in Admin Dashboard
 1. Tools: Import views count (hits) from plugin WP-PostViews to hits of AJAX Hits Counter
+1. AJAX Hits Counter General Settings
 
 == Changelog ==
+
+= 0.9.9 [2014-12-19] =
+* Added option in Settings: "Don't count hits of admin users". Currently it works only with normal (not "rapid") counting script. Thanks for the idea to [vvvv](https://wordpress.org/support/profile/vvvv).
+* Updated screenshots with Wordpress 4.1
 
 = 0.9.8 [2014-12-18] =
 * Added possibility to set Hits Count format from predefined. Thanks for the idea to [emik91](https://wordpress.org/support/profile/emik91), [Dre_MPMG](https://wordpress.org/support/profile/dre_mpmg), [Pulseframe](https://wordpress.org/support/profile/pulseframe).

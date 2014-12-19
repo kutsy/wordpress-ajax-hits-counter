@@ -4,7 +4,7 @@
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
  * Plugin URI: http://wordpress.org/plugins/ajax-hits-counter/
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.9.8
+ * Version: 0.9.9
  * Author: Roman Telychko
  * Author URI: http://romantelychko.com
 */
@@ -20,6 +20,7 @@ class AJAX_Hits_Counter
 
     protected $settings = array(
         'use_rapid_incrementer'         => 0,
+        'dont_count_admins'             => 0,
     );
     
     ///////////////////////////////////////////////////////////////////////////
@@ -62,7 +63,7 @@ class AJAX_Hits_Counter
             add_action('admin_init',                                    array( $this, 'adminInit' ) );
                         
             // register importer
-            require_once(ABSPATH.'wp-admin/includes/import.php');
+            require_once( ABSPATH.'wp-admin/includes/import.php' );
             
             register_importer( 
                 __CLASS__.'_Importer',
@@ -99,21 +100,22 @@ class AJAX_Hits_Counter
 	 */
     public function register()
     {
-        return register_widget( 'AJAX_Hits_Counter_Popular_Posts_Widget' );
+        register_widget( 'AJAX_Hits_Counter_Popular_Posts_Widget' );
+        return true;
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * AJAX_Hits_Counter::getIncrementerTypeOption()
-	 *
-	 * @return      integer
-	 */
-    public function getIncrementerTypeOption()
+    /**
+     * AJAX_Hits_Counter::getOption()
+     *
+     * @param       string      $name
+     * @return      integer
+     */
+    public function getOption( $name )
     {
-        $temp_use_rapid_incrementer = intval( preg_replace( '#[^01]#', '', get_option( 'ajaxhc_use_rapid_incrementer', $this->settings['use_rapid_incrementer']) ) );
-        
-        return in_array( $temp_use_rapid_incrementer, array( 0, 1 ) ) ? $temp_use_rapid_incrementer : 0;
+        $temp = intval( preg_replace( '#[^01]#', '', get_option( 'ajaxhc_'.$name, $this->settings[$name]) ) );
+        return in_array( $temp, array( 0, 1 ) ) ? $temp : 0;
     }
     
     ///////////////////////////////////////////////////////////////////////////
@@ -130,7 +132,7 @@ class AJAX_Hits_Counter
     
         if( is_single() || is_page() ) 
         {
-            if( $this->getIncrementerTypeOption()==1 )          // use rapid incrementer
+            if( $this->getOption('use_rapid_incrementer')==1 )          // use rapid incrementer
             {
                 $incrementer_url = plugin_dir_url( __FILE__ ).'increment-hits.rapid.php?post_id='.$post->ID.'&t=';
             }
@@ -162,10 +164,17 @@ class AJAX_Hits_Counter
 	 */
     public function incrementHits()
     {
+        // Don't count hits of admin users
+        #if( is_user_logged_in() && is_admin() && $this->getOption('dont_count_admins')==1 )
+        if( is_user_logged_in() && current_user_can( 'manage_options' ) && $this->getOption('dont_count_admins')==1 )
+        {
+            die( '0' );
+        }
+
         if( !isset($_GET['post_id']) || empty($_GET['post_id']) )
         {
             die( '0' );
-        }    
+        }
         
         if( function_exists('filter_var') )
         {
@@ -332,9 +341,10 @@ class AJAX_Hits_Counter
     public function adminSettingsPage()
     {
         ///////////////////////////////////////////////////////////////////////
-    
-        $this->settings['use_rapid_incrementer'] = $this->getIncrementerTypeOption();
-        
+
+        $this->settings['use_rapid_incrementer']    = $this->getOption('use_rapid_incrementer');
+        $this->settings['dont_count_admins']        = $this->getOption('dont_count_admins');
+
         ///////////////////////////////////////////////////////////////////////
     
         echo(
@@ -351,6 +361,12 @@ class AJAX_Hits_Counter
                     '<td colspan="2">'.
                         '<input type="checkbox" '.( $this->settings['use_rapid_incrementer']==1 ? ' checked="checked"' : '' ).' name="ajaxhc_use_rapid_incrementer" id="ajaxhc_use_rapid_incrementer" value="1" />'.
                         '<label for="ajaxhc_use_rapid_incrementer">&nbsp;'.__( 'Use very fast (rapid) Hits Counter Script (ATTENTION! Required Wordpress version 3.4 or higher', $this->plugin_alias ).')</label>'.
+                    '</td>'.
+                '</tr>'.
+                '<tr valign="top">'.
+                    '<td colspan="2">'.
+                        '<input type="checkbox" '.( $this->settings['dont_count_admins']==1 ? ' checked="checked"' : '' ).' name="ajaxhc_dont_count_admins" id="ajaxhc_dont_count_admins" value="1" />'.
+                        '<label for="ajaxhc_dont_count_admins">&nbsp;'.__( 'Don\'t count hits of admin users', $this->plugin_alias ).'</label>'.
                     '</td>'.
                 '</tr>'.
             '</table>'
@@ -375,6 +391,7 @@ class AJAX_Hits_Counter
     {
         // register settings
         register_setting( 'ajaxhc', 'ajaxhc_use_rapid_incrementer' );
+        register_setting( 'ajaxhc', 'ajaxhc_dont_count_admins' );
     }
     
     ///////////////////////////////////////////////////////////////////////////
