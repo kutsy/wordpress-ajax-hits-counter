@@ -8,10 +8,34 @@
 // Force SHORT INIT
 define( 'SHORTINIT', true );
 
-// Require the wp-load.php file
-require( realpath( __DIR__ .'/../../../') . '/wp-load.php' );
+function sendHTTPHeaders() 
+{
+    // Set the HTTP Headers
+    @header('Content-Type: text/html; charset=' . get_option('blog_charset'));
+    @header('X-Robots-Tag: noindex');
+    send_nosniff_header();
+    nocache_headers();
 
+}
+
+function loadWP( $path ) 
+{
+    // Load Wordpress via wp-load.php
+    require( $path . '/wp-load.php' );
+    //error_log( 'increment_hits_rapid.php : PATH to wp-load.php:' . $path . '/wp-load.php' );
+    //sendHTTPHeaders()
+}
+
+if( !isset($_GET['path']) || empty($_GET['path']) )
+{
+    die( '0' );
+}    
+
+
+// Load Wordpres Core, so we can use the API
 // Include global $wpdb Class for use
+$path = urldecode( $_GET['path'] );
+loadWP( $path );
 global $wpdb;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -108,6 +132,8 @@ else
 
 ///////////////////////////////////////////////////////////////////////////////
 
+//error_log( 'increment_hits_rapid.php : Post ID: ' . $post_id );
+//error_log( 'increment_hits_rapid.php : Hits: ' . $current_hits );
 die( strval( $current_hits ) );
 
 ///////////////////////////////////////////////////////////////////////////////

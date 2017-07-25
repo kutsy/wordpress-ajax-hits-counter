@@ -4,8 +4,8 @@
  * Plugin Name: AJAX Hits Counter + Popular Posts Widget
  * Plugin URI: http://wordpress.org/plugins/ajax-hits-counter/
  * Description: Counts page/posts hits via AJAX and display it in admin panel. Ideal for nginx whole-page-caching. Popular Posts Widget included.
- * Version: 0.9.9
- * Author: Roman Telychko
+ * Version: 0.9.9.1
+ * Author: Roman Telychko, Shaa Taylor
  * Author URI: http://romantelychko.com
 */
 
@@ -27,7 +27,28 @@ class AJAX_Hits_Counter
     
     protected $plugin_title = 'AJAX Hits Counter';
     protected $plugin_alias = 'ajax-hits-counter';
+    protected $post_ID;
+    protected $post_URL;
 
+    ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * AJAX_Hits_Counter::writeLog()
+     *
+     * Writes to the /wp-content/debug.log, for debugging. Added by Shaa.
+     *
+     * @param       string          $log
+     * @return      void
+     */
+    private function writeLog( $log ) 
+    {
+        if ( is_array( $log ) || is_object( $log ) ) {
+            error_log( print_r( $log, true ) );
+        } else {
+            error_log( $log );
+        }
+    }
+    
     ///////////////////////////////////////////////////////////////////////////
 
 	/**
@@ -37,6 +58,8 @@ class AJAX_Hits_Counter
 	 */
     public function init()
     {
+        //$this->writeLog( 'AJAX_Hits_Counter::init() : Initialising' );
+
         if( is_admin() )
         {
             // load translation
@@ -128,18 +151,22 @@ class AJAX_Hits_Counter
 	 */
     public function appendScript( $content )
     {
-        global $post;
-    
+
+        $this->post_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $this->post_ID = url_to_postid( $this->post_url );
+
         if( is_single() || is_page() ) 
         {
             if( $this->getOption('use_rapid_incrementer')==1 )          // use rapid incrementer
             {
-                $incrementer_url = plugin_dir_url( __FILE__ ).'increment-hits.rapid.php?post_id='.$post->ID.'&t=';
+                $incrementer_url = plugin_dir_url( __FILE__ ).'increment-hits.rapid.php?post_id='.$this->post_ID.'&path='.urlencode( ABSPATH ).'&t=';
             }
             else                                                // use simple incrementer
             {
-                $incrementer_url = admin_url( 'admin-ajax.php' ).'?action='.$this->plugin_alias.'-increment&post_id='.$post->ID.'&t=';
+                $incrementer_url = admin_url( 'admin-ajax.php' ).'?action='.$this->plugin_alias.'-increment&post_id='.$this->post_ID.'&path=' . urlencode( ABSPATH ) . '&t=';
             }
+
+            //$this->writeLog( 'AJAX_Hits_Counter::appendScript()) : Incrementer URL: ' . $incrementer_url );
         
             $content .=
                 '<script type="text/javascript">'.
@@ -164,6 +191,7 @@ class AJAX_Hits_Counter
 	 */
     public function incrementHits()
     {
+        // The Slow Method (non-AJAX)
         // Don't count hits of admin users
         #if( is_user_logged_in() && is_admin() && $this->getOption('dont_count_admins')==1 )
         if( is_user_logged_in() && current_user_can( 'manage_options' ) && $this->getOption('dont_count_admins')==1 )
@@ -184,7 +212,7 @@ class AJAX_Hits_Counter
         {
             $post_id = intval( preg_replace( '#[^0-9]#', '', $_GET['post_id'] ) );
         }
-        
+
         if( empty($post_id) )
         {
             die( '0' );
@@ -296,7 +324,7 @@ class AJAX_Hits_Counter
     
         return $this->getHits( $post_id );
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
     
 	/**
